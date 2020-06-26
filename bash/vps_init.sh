@@ -106,7 +106,7 @@ Wants=network.target
 Type=simple
 PIDFile=/var/run/clientServer.pid
 WorkingDirectory=/root/.serverstatus
-ExecStart=/usr/bin/python2 client-linux.py SERVER=serverstatus.kbrx93.com USER="${serverNo}" PASSWORD=Aa878791682
+ExecStart=/usr/bin/python2 client-linux.py SERVER=serverstatus.kbrx93.com USER="${serverNo}" PASSWORD=939393
 Restart=always
 User=root
 
