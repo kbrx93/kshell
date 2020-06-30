@@ -1,0 +1,20 @@
+{
+  "name": "PDM功能扩展",
+  "version": "0.1",
+  "description": "在线播放视频，打开LOG",
+  "manifest_version": 2,
+  "omnibox": {
+    "keyword": "kPDM"
+ },
+ "content_scripts": [ {
+    "all_frames": true,
+    "css": [ "css/video-js.css" ],
+    "js": [ "js/video.min.js", "js/layer.js", "js/content.js" ],
+    "matches": [ "http://pdm.vivo.xyz/rdms/*" ]
+  } ],
+  "icons": {
+    "128": "img/icon128.png",
+    "16": "img/icon16.png",
+    "48": "img/icon48.png"
+ }
+}
