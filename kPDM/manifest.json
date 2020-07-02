@@ -8,7 +8,7 @@
  },
  "content_scripts": [ {
     "all_frames": true,
-    "css": [ "css/video-js.css" ],
+    "css": [ "css/video-js.css", "css/videoPlayer.css" ],
     "js": [ "js/jquery-3.5.1.min.js", "js/video.min.js", "js/layer.js", "js/content.js" ],
     "matches": [ "http://pdm.vivo.xyz/rdms/*" ]
   } ],

@@ -1,0 +1,11 @@
+.video-play-btn {
+    margin-left: 10px;
+}
+
+.video-player-layer .layui-layer-content {
+    overflow: auto!important;
+    background: #000;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
