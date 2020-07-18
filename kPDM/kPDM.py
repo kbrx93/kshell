@@ -287,8 +287,8 @@ class PDM(object):
         zip_path, zip_filename = zip_file.rsplit(os.sep, 1)
         zip_basename, ext = zip_filename.split('.', 1)
         # print('zip_path: {}, zip_filename: {}, zip_basename: {}, ext: {}'.format(zip_path, zip_filename, zip_basename, ext))
-        if os.path.exists(os.path.join(dst_dir, zip_basename)):
-            print('{} folder exists!'.format(os.path.join(dst_dir, zip_basename)))
+        if os.path.exists(dst_dir):
+            print('{} folder exists!'.format(dst_dir))
             return
         result = zipfile.is_zipfile(zip_file)
         if not result:
