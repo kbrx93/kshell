@@ -286,6 +286,7 @@ class PDM(object):
         '''
         zip_path, zip_filename = zip_file.rsplit(os.sep, 1)
         zip_basename, ext = zip_filename.split('.', 1)
+        # print('zip_path: {}, zip_filename: {}, zip_basename: {}, ext: {}'.format(zip_path, zip_filename, zip_basename, ext))
         if os.path.exists(os.path.join(dst_dir, zip_basename)):
             print('{} folder exists!'.format(os.path.join(dst_dir, zip_basename)))
             return
@@ -315,7 +316,7 @@ class PDM(object):
             for link, folder in self.get_detail_page(item):
                 zip_full_path = '{}.{}'.format(os.path.join(self.log_zip_pre_path, folder), self.support_ext[0])
                 self.save_zipfile(link, zip_full_path)
-                self.unzip_file(zip_full_path, self.log_extract_pre_path)
+                self.unzip_file(zip_full_path, os.path.join(self.log_extract_pre_path, folder))
         print('---------- finish ----------')
 
 if __name__ == '__main__':
