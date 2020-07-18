@@ -3,7 +3,7 @@ const video_support_format = ['.mp4', '.webm', '.ogv']
 const log_support_format = ['.zip', 'rar']
 let count = 1
 let logcount = 1
-let file_path = 'K://log/'
+let file_path = 'K:\\log\\log_extract\\'
 let bugNum = 'BBB'
 // 查找所有视频及Log
 $("a[href][target='_blank']").each(function () {
@@ -24,8 +24,8 @@ $("a[href][target='_blank']").each(function () {
       url = location.protocol + '//' + location.hostname + port + url
     }
     // add link
-    let $play = $('<a class="video-play-btn" href="javascript:;">播放</a>')
-    $this.after($play)
+    let $play = $('<a class="video-play-btn" href="javascript:;">&nbsp播放&nbsp</a>')
+	$this.parent().append($play)
     $play.click(function () {
       let id = 'video-player-' + (count++)
       playerHtml = '<video id="' + id + '" class="video-js vjs-default-skin vjs-big-play-centered vjs-fluid" controls preload="none" \
@@ -39,6 +39,7 @@ $("a[href][target='_blank']").each(function () {
       layerIns.open({
         type: 1,
         area: '1000px',
+		scrollbar: false,
         title: '正在播放【' + file_name + '】',
         skin: 'video-player-layer',
         content: playerHtml,
@@ -55,12 +56,15 @@ $("a[href][target='_blank']").each(function () {
     })
   } else if (log_support_format.indexOf(suffix) >= 0) {
     // 匹配对应的 Log
-    let $btn = $('<button id="btn">点我复制LOG路径</button>')
-    $this.after($btn)
+	let local_logcount = logcount
+    let $btn = $('<button id="btn_' + logcount + '">点我复制LOG路径</button>')
+	$this.parent().append($btn)
     $btn.click(function() {
       // 后面改成可配置的
-      let fileurl = file_path + bugNum + '_' + logcount + "/"
-      logcount ++
+	  let $titleDom = $('#codeandtitle')
+	  let bugNum = $titleDom.text().match(/\[(.+?)\]/g)[0]
+	  bugNum = bugNum.substring(1, bugNum.length - 1)
+	  let fileurl = file_path + bugNum + '_' + local_logcount + "\\"
       const input = document.createElement('input');
       document.body.appendChild(input);
       input.setAttribute('value', fileurl);
@@ -71,7 +75,36 @@ $("a[href][target='_blank']").each(function () {
       }
       document.body.removeChild(input);
     })
+	logcount ++
   } else {
     console.log('can not find support suffix log and video')
   }
 })
+
+	//判断当前窗口是否被layerIframe包含，如果是，则返回该layerIframe下的iframe
+function getLayerIframe(win){
+	if(top === win){
+		return null;
+	}
+	var flag = false;
+	for(var i = 0; i < win.parent.frames.length; i++){
+		var frame = win.parent.frames[i];
+		try{
+			//解决某些浏览器插件往页面添加iframe导致跨域报错的问题
+			var frameName = frame.name;
+			if(frameName 
+					&& frame === win 
+					&& $("iframe[name='" + frameName + "']", win.parent.document).hasClass("layer-iframe-content")){
+				flag = true;
+				break;
+			}
+		}catch(e){
+			console.error(e);
+		}
+	}
+	if(!flag){
+		//往父页面找，直到top
+		return getLayerIframe(win.parent);
+	}
+	return win;
+}
