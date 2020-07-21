@@ -287,9 +287,14 @@ class PDM(object):
         zip_path, zip_filename = zip_file.rsplit(os.sep, 1)
         zip_basename, ext = zip_filename.split('.', 1)
         # print('zip_path: {}, zip_filename: {}, zip_basename: {}, ext: {}'.format(zip_path, zip_filename, zip_basename, ext))
-        if os.path.exists(dst_dir):
-            print('{} folder exists!'.format(dst_dir))
-            return
+        if 'MIT' not in dst_dir:
+            if os.path.exists(dst_dir):
+                print('{} folder exists!'.format(dst_dir))
+                return
+        else:
+            if os.path.exists(zip_file.rsplit('.', 1)[0]):
+                print('MIT {} folder exists!'.format(zip_file.rsplit('.', 1)[0]))
+                return
         result = zipfile.is_zipfile(zip_file)
         if not result:
             print(f'{zip_file} is not zip file')
@@ -301,6 +306,8 @@ class PDM(object):
             fz.extract(file, dst_dir)
             # if sub file is zip, extract
             sub_file_path = os.path.join(dst_dir, file)
+            print('sub: {}, {}'.format(sub_file_path, zipfile.is_zipfile(sub_file_path)))
+
             if zipfile.is_zipfile(sub_file_path):
                 self.unzip_file(sub_file_path, os.path.abspath(os.path.dirname(sub_file_path)))
 
