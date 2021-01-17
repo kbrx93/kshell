@@ -44,7 +44,7 @@ install_bbr()
 custom_setting()
 {
   echo > /etc/motd
-  apt install sudo wget curl net-tools git zsh -y
+  apt install sudo wget curl net-tools git zsh mosh -y
 }
 
 install_zsh()
@@ -63,7 +63,7 @@ install_pip(){
     exit 1
   fi
   curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py
-  sudo apt-get install mosh build-essential checkinstall aptitude sqlite3  libreadline-gplv2-dev libncursesw5-dev libssl-dev libsqlite3-dev tk-dev libgdbm-dev libc6-dev libbz2-dev libxslt1-dev libxml2-dev libffi-dev python-dev xz-utils -y
+  sudo apt-get install build-essential checkinstall aptitude sqlite3  libreadline-gplv2-dev libncursesw5-dev libssl-dev libsqlite3-dev tk-dev libgdbm-dev libc6-dev libbz2-dev libxslt1-dev libxml2-dev libffi-dev python-dev xz-utils -y
   sudo aptitude -y install gcc make zlib1g-dev
   if ! command -v python2 &> /dev/null; then
     echo_red "python2 not installed"
@@ -162,7 +162,7 @@ main()
   if [[ "${yesOrNo}" =~ ^[Yy]$ ]]; then
     install_bbr
   fi
-  read -p 'custom_setting ?' yesOrNo
+  read -p 'custom_setting[like install wget curl...] ?' yesOrNo
   if [[ "${yesOrNo}" =~ ^[Yy]$ ]]; then
     custom_setting
   fi
