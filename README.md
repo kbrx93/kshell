@@ -1,2 +1,2 @@
 # kshell
-my script hub
+script hub
