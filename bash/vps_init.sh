@@ -44,7 +44,7 @@ install_bbr()
 custom_setting()
 {
   echo > /etc/motd
-  apt install sudo wget curl net-tools git zsh mosh -y
+  apt install sudo wget curl net-tools git zsh -y
 }
 
 install_zsh()
