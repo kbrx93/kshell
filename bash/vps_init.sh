@@ -1,98 +1,346 @@
 #!/usr/bin/env bash
+# Author: kbrx93
+# Github: https://github.com/kbrx93
+#
+# Note: Init Shell for Debian 9+
+#
+# Quick Use: 
 export PATH="/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin:~/bin"
+clear
+printf "
+#######################################################################
+#                      Init Shell for Debian 9+                       #
+#          For information please visit https://town.kbrx93.com       #
+#######################################################################
+"
 
-set -o errexit
-set -o pipefail
-set -o nounset
-# set -o xtrace
+#######  Base Method #######
+Color_Text()
+{
+  echo -e " \e[0;$2m$1\e[0m"
+}
+
+Echo_Red()
+{
+  echo $(Color_Text "$1" "31")
+}
+
+Echo_Green()
+{
+  echo $(Color_Text "$1" "32")
+}
+
+Echo_Yellow()
+{
+  echo $(Color_Text "$1" "33")
+}
+
+Get_Dist_Version()
+{
+    if command -v lsb_release >/dev/null 2>&1; then
+        DISTRO_Version=$(lsb_release -sr)
+    elif [ -f /etc/lsb-release ]; then
+        . /etc/lsb-release
+        DISTRO_Version="$DISTRIB_RELEASE"
+    elif [ -f /etc/os-release ]; then
+        . /etc/os-release
+        DISTRO_Version="$VERSION_ID"
+    fi
+    if [[ "${DISTRO}" = "" || "${DISTRO_Version}" = "" ]]; then
+        if command -v python2 >/dev/null 2>&1; then
+            DISTRO_Version=$(python2 -c 'import platform; print platform.linux_distribution()[1]')
+        elif command -v python3 >/dev/null 2>&1; then
+            DISTRO_Version=$(python3 -c 'import platform; print(platform.linux_distribution()[1])')
+        else
+            Install_LSB
+            DISTRO_Version=`lsb_release -rs`
+        fi
+    fi
+    printf -v "${DISTRO}_Version" '%s' "${DISTRO_Version}"
+}
+
+Get_Dist_Name()
+{
+    if grep -Eqi "CentOS" /etc/issue || grep -Eq "CentOS" /etc/*-release; then
+        DISTRO='CentOS'
+        PM='yum'
+    elif grep -Eqi "Aliyun" /etc/issue || grep -Eq "Aliyun Linux" /etc/*-release; then
+        DISTRO='Aliyun'
+        PM='yum'
+    elif grep -Eqi "Amazon Linux" /etc/issue || grep -Eq "Amazon Linux" /etc/*-release; then
+        DISTRO='Amazon'
+        PM='yum'
+    elif grep -Eqi "Fedora" /etc/issue || grep -Eq "Fedora" /etc/*-release; then
+        DISTRO='Fedora'
+        PM='yum'
+    elif grep -Eqi "Oracle Linux" /etc/issue || grep -Eq "Oracle Linux" /etc/*-release; then
+        DISTRO='Oracle'
+        PM='yum'
+    elif grep -Eqi "Red Hat Enterprise Linux" /etc/issue || grep -Eq "Red Hat Enterprise Linux" /etc/*-release; then
+        DISTRO='RHEL'
+        PM='yum'
+    elif grep -Eqi "Debian" /etc/issue || grep -Eq "Debian" /etc/*-release; then
+        DISTRO='Debian'
+        PM='apt'
+    elif grep -Eqi "Ubuntu" /etc/issue || grep -Eq "Ubuntu" /etc/*-release; then
+        DISTRO='Ubuntu'
+        PM='apt'
+    elif grep -Eqi "Raspbian" /etc/issue || grep -Eq "Raspbian" /etc/*-release; then
+        DISTRO='Raspbian'
+        PM='apt'
+    elif grep -Eqi "Deepin" /etc/issue || grep -Eq "Deepin" /etc/*-release; then
+        DISTRO='Deepin'
+        PM='apt'
+    elif grep -Eqi "Mint" /etc/issue || grep -Eq "Mint" /etc/*-release; then
+        DISTRO='Mint'
+        PM='apt'
+    elif grep -Eqi "Kali" /etc/issue || grep -Eq "Kali" /etc/*-release; then
+        DISTRO='Kali'
+        PM='apt'
+    else
+        DISTRO='unknow'
+    fi
+    Get_OS_Bit
+}
+
+Get_OS_Bit()
+{
+    if [[ `getconf WORD_BIT` = '32' && `getconf LONG_BIT` = '64' ]] ; then
+        Is_64bit='y'
+    else
+        Is_64bit='n'
+    fi
+}
+
+
+
+# check if user is root
+if [ $(id -u) != "0" ]; then
+  echo "Error: you must be root to run this script, please use root"
+  exit 1
+fi
+
+# check System Version
+Get_Dist_Name
+
+if [ "${DISTRO}" != "Debian" ]; then
+  Echo_Red "Only Support Debian 9+"
+  exit 1
+elif [ "${DISTRO}" == "unknow" ]; then
+  Echo_Red "Unable to get Linux distribution name, or do NOT support the current distribution."
+  exit 1
+fi
+
+# choice change password
+while :; do echo
+  read -e -p "Do you want to change password? [y/n]: " chg_pwd_opt
+  if [[ ! ${chg_pwd_opt} =~ ^[y,n]$ ]]; then
+    Echo_Red "Input Error! Please only input 'y' or 'n'"
+  else
+    if [ "${chg_pwd_opt}" == 'y' ]; then
+      while :; do echo
+        Echo_Yellow "Enter new password for $(id -u -n) (Passowrd will not shown): "
+        read -s NEW_ROOT_PASSWORD_1
+        Echo_Yellow "Retype new password: "
+        read -s NEW_ROOT_PASSWORD_2
+        if [ "${NEW_ROOT_PASSWORD_1}" == "${NEW_ROOT_PASSWORD_2}" ]; then
+          Echo_Green "OK, Password Input finish."
+          break
+        else
+          Echo_Red "Sorry, password do not match"
+        fi
+      done
+      NEW_ROOT_PASSWORD=${NEW_ROOT_PASSWORD_1}
+      break
+    else :
+      break
+    fi
+    break  
+  fi
+done
+
+# choice package update
+while :; do echo
+  read -e -p "Do you want to execute package update [y/n]? [default: y] " package_update_opt
+  package_update_opt=${package_update_opt:-'y'}
+  if [[ ! ${package_update_opt} =~ ^[y,n]$ ]]; then
+    Echo_Red "Input Error! Please only input 'y' or 'n'"
+  else :
+    break
+  fi
+done
+
+# choice BBR installation
+while :; do echo
+  read -e -p "Do you want to install BBR [y/n]? " bbr_install_opt
+  if [[ ! ${package_update_opt} =~ ^[y,n]$ ]]; then
+    Echo_Red "Input Error! Please only input 'y' or 'n'"
+  else :
+    break
+  fi
+done
+
+# choice custom setting
+while :; do echo
+  read -e -p "Do you want to take some custom setting [y/n]? " custom_setting_opt
+  if [[ ! ${custom_setting_opt} =~ ^[y,n]$ ]]; then
+    Echo_Red "Input Error! Please only input 'y' or 'n'"
+  else :
+    break
+  fi
+done
+
+# choice ssh port update
+while :; do echo
+  read -e -p "Do you want to update ssh port [y/n]? " ssh_port_opt
+  if [[ ! ${ssh_port_opt} =~ ^[y,n]$ ]]; then
+    Echo_Red "Input Error! Please only input 'y' or 'n'"
+  else :
+    break
+  fi
+done
+
+# choice Pip installation
+while :; do echo
+  read -e -p "Do you want to install Pip [y/n]? " pip_install_opt
+  if [[ ! ${pip_install_opt} =~ ^[y,n]$ ]]; then
+    Echo_Red "Input Error! Please only input 'y' or 'n'"
+  else :
+    break
+  fi
+done
+
+# choice Pyenv installation
+while :; do echo
+  read -e -p "Do you want to install Pyenv [y/n]? " pyenv_install_opt
+  if [[ ! ${pyenv_install_opt} =~ ^[y,n]$ ]]; then
+    Echo_Red "Input Error! Please only input 'y' or 'n'"
+  else :
+    break
+  fi
+done
+
+# choice ServerStatus installation
+while :; do echo
+  read -e -p "Do you want to install serverstatus [y/n]? " serverstatus_install_opt
+  if [[ ! ${serverstatus_install_opt} =~ ^[y,n]$ ]]; then
+    Echo_Red "Input Error! Please only input 'y' or 'n'"
+  else :
+    break
+  fi
+done
+
+# choice Oh_My_Zsh installation
+while :; do echo
+  read -e -p "Do you want to install oh my zsh [y/n]? " ohmyzsh_install_opt
+  if [[ ! ${ohmyzsh_install_opt} =~ ^[y,n]$ ]]; then
+    Echo_Red "Input Error! Please only input 'y' or 'n'"
+  else :
+    break
+  fi
+done
+
+Press_Start()
+{
+  echo ""
+  Echo_Green "Press any key to install...or Press Ctrl+c to cancel"
+  OLDCONFIG=`stty -g`
+  stty -icanon -echo min 1 time 0
+  dd count=1 2>/dev/null
+  stty ${OLDCONFIG}
+}
 
 change_password()
 {
-  local new_password="kbrx93.com"
-  local confirm_password="kbrx93.com"
-  read -p "please input your new password: (default -> kbrx93.com) " new_password
-  read -p "confirm your password again: " confirm_password
-  if [[ "${new_password}" != "${confirm_password}" ]]; then
-    echo_red "password is different, exit"
-    exit 1
-  fi
-  echo "$USER:${new_password}" | chpasswd
-  if [[ "$?" = "0" ]]; then
-    echo_green "----- change $USER password success ! -----"
-  else
-    echo_red "----- change $USER password failed :( -----"
-    exit 1
+  if [ $1 == 'y' ]; then
+    echo "$(id -u -n):$2" | chpasswd
+    if [[ "$?" = "0" ]]; then
+      Echo_Green "----- change password success ! -----"
+    else
+      Echo_Red "----- change password failed :( -----"
+      exit 1
+    fi
   fi
 }
 
-common_update()
+package_update()
 {
-  if command -v apt-get &>/dev/null; then
-    apt update -y && apt upgrade -y
-  else
-    echo_red "Can not find apt-get !"
-    exit 1
+  if [ $1 == 'y' ]; then
+    if command -v ${PM} &>/dev/null; then
+      ${PM} update -y && apt upgrade -y
+    else
+      Echo_Red "Can not find apt-get !"
+      exit 1
+    fi
   fi
 }
 
 install_bbr()
 {
   # 暂时不检测内核版本
-  echo "net.core.default_qdisc=fq" >> /etc/sysctl.conf && echo "net.ipv4.tcp_congestion_control=bbr" >> /etc/sysctl.conf && sysctl -p
+  if [ $1 == 'y' ]; then
+    echo "net.core.default_qdisc=fq" >> /etc/sysctl.conf && echo "net.ipv4.tcp_congestion_control=bbr" >> /etc/sysctl.conf && sysctl -p
+  fi
 }
 
 custom_setting()
 {
-  echo > /etc/motd
-  apt install sudo wget curl net-tools git zsh -y
+  if [ $1 == 'y' ]; then
+    echo > /etc/motd
+    ${PM} install sudo wget curl net-tools git zsh -y
+  fi
 }
 
-install_zsh()
-{
-   sh -c "$(curl -fsSL https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/install.sh)"
-}
+
 
 update_ssh_port()
 {
-  bash <(wget -N --no-check-certificate -qO- https://raw.githubusercontent.com/ToyoDAdoubi/doubi/master/ssh_port.sh)
+  if [ $1 == 'y' ]; then
+    bash <(wget -N --no-check-certificate -qO- https://raw.githubusercontent.com/ToyoDAdoubi/doubi/master/ssh_port.sh)
+  fi
 }
 
 install_pip(){
-  if ! command -v curl &> /dev/null; then
-    echo_red "curl not install"
-    exit 1
-  fi
-  curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py
-  sudo apt-get install build-essential checkinstall aptitude sqlite3  libreadline-gplv2-dev libncursesw5-dev libssl-dev libsqlite3-dev tk-dev libgdbm-dev libc6-dev libbz2-dev libxslt1-dev libxml2-dev libffi-dev python-dev xz-utils -y
-  sudo aptitude -y install gcc make zlib1g-dev
-  if ! command -v python2 &> /dev/null; then
-    echo_red "python2 not installed"
-    exit 1
-  fi
-  if python2 get-pip.py; then
-    rm -rf get-pip.py
+  if [ $1 == 'y' ]; then
+    if ! command -v curl &> /dev/null; then
+      echo_red "curl not install"
+      exit 1
+    fi
+    curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py
+    sudo apt-get install build-essential checkinstall aptitude sqlite3  libreadline-gplv2-dev libncursesw5-dev libssl-dev libsqlite3-dev tk-dev libgdbm-dev libc6-dev libbz2-dev libxslt1-dev libxml2-dev libffi-dev python-dev xz-utils -y
+    sudo aptitude -y install gcc make zlib1g-dev
+    if ! command -v python2 &> /dev/null; then
+      echo_red "python2 not installed"
+      exit 1
+    fi
+    if python2 get-pip.py; then
+      rm -rf get-pip.py
+    fi
   fi
 }
 
 install_pyenv()
 {
-  curl -L https://raw.githubusercontent.com/yyuu/pyenv-installer/master/bin/pyenv-installer | bash
-  cat >> ~/.bashrc << EOF
+  if [ $1 == 'y' ]; then
+    curl -L https://raw.githubusercontent.com/yyuu/pyenv-installer/master/bin/pyenv-installer | bash
+    cat >> ~/.bashrc << EOF
 # Pyenv
 export PATH="/root/.pyenv/bin:\$PATH"
 eval "\$(pyenv init -)"
 eval "\$(pyenv virtualenv-init -)"
 EOF
-  export PATH="/root/.pyenv/bin:${PATH}"
-  pyenv init -
-  pyenv virtualenv-init -
-  pyenv install 3.6.8
-  pyenv global 3.6.8
+    export PATH="/root/.pyenv/bin:${PATH}"
+    pyenv init -
+    pyenv virtualenv-init -
+    pyenv install 3.6.8
+    pyenv global 3.6.8
+  fi
 }
 
 install_serverstatus()
 {
-  local serverNo="s01"
+  if [ $1 == 'y' ]; then
+local serverNo="s01"
   read -p "input server no : " serverNo
   mkdir /root/.serverstatus && cd $_ && wget --no-check-certificate -qO client-linux.py 'https://raw.githubusercontent.com/cppla/ServerStatus/master/clients/client-linux.py' 
 
@@ -117,75 +365,25 @@ EOF
 
 systemctl restart clientServer.service
 systemctl enable clientServer.service
+  fi
 }
 
-check_root()
+install_ohmyzsh()
 {
-  if [[ $(id -u) != "0" ]]; then
-    echo_red "Error: You must run this script as root !"
-    exit 1
+  if [ $1 == 'y' ]; then
+    sh -c "$(curl -fsSL https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/install.sh)"
   fi
 }
 
-color_text()
-{
-  echo -e "\e[0;$2m$1\e[0m"
-}
+Press_Start
 
-echo_red()
-{
-  echo $(color_text "$1" "31")
-}
+change_password ${chg_pwd_opt} ${NEW_ROOT_PASSWORD}
+package_update ${package_update_opt}
+install_bbr ${bbr_install_opt}
+custom_setting ${custom_setting_opt}
+update_ssh_port ${ssh_port_opt}
+install_pip ${pip_install_opt}
+install_pyenv ${pyenv_install_opt}
+install_serverstatus ${serverstatus_install_opt}
+install_ohmyzsh ${ohmyzsh_install_opt}
 
-echo_green()
-{
-  echo $(color_text "$1" "32")
-}
-
-main()
-{
-  # do
-  local yesOrNo=n
-  read -p 'check root ?' yesOrNo
-  if [[ "${yesOrNo}" =~ ^[Yy]$ ]]; then
-    check_root
-  fi
-  read -p 'change_password ?' yesOrNo
-  if [[ "${yesOrNo}" =~ ^[Yy]$ ]]; then
-    change_password
-  fi
-  read -p 'common_update ?' yesOrNo
-  if [[ "${yesOrNo}" =~ ^[Yy]$ ]]; then
-    common_update
-  fi
-  read -p 'install_bbr ?' yesOrNo
-  if [[ "${yesOrNo}" =~ ^[Yy]$ ]]; then
-    install_bbr
-  fi
-  read -p 'custom_setting[like install wget curl...] ?' yesOrNo
-  if [[ "${yesOrNo}" =~ ^[Yy]$ ]]; then
-    custom_setting
-  fi
-  read -p 'update_ssh_port ?' yesOrNo
-  if [[ "${yesOrNo}" =~ ^[Yy]$ ]]; then
-    update_ssh_port
-  fi
-  read -p 'install_pip ?' yesOrNo
-  if [[ "${yesOrNo}" =~ ^[Yy]$ ]]; then
-    install_pip
-  fi
-  read -p 'install_pyenv ?' yesOrNo
-  if [[ "${yesOrNo}" =~ ^[Yy]$ ]]; then
-    install_pyenv
-  fi
-  read -p 'install_serverstatus ?' yesOrNo
-  if [[ "${yesOrNo}" =~ ^[Yy]$ ]]; then
-    install_serverstatus
-  fi
-  read -p 'install_zsh ?' yesOrNo
-  if [[ "${yesOrNo}" =~ ^[Yy]$ ]]; then
-    install_zsh
-  fi
-}
-
-main "$@"
