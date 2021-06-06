@@ -172,8 +172,9 @@ done
 
 # choice BBR installation
 while :; do echo
-  read -e -p "Do you want to install BBR [y/n]? " bbr_install_opt
-  if [[ ! ${package_update_opt} =~ ^[y,n]$ ]]; then
+  read -e -p "Do you want to install BBR [y/n]? [default: y] " bbr_install_opt
+  bbr_install_opt=${bbr_install_opt:-'y'}
+  if [[ ! ${bbr_install_opt} =~ ^[y,n]$ ]]; then
     Echo_Red "Input Error! Please only input 'y' or 'n'"
   else :
     break
@@ -182,7 +183,8 @@ done
 
 # choice custom setting
 while :; do echo
-  read -e -p "Do you want to take some custom setting [y/n]? " custom_setting_opt
+  read -e -p "Do you want to take some custom setting [y/n]? [default: y] " custom_setting_opt
+  custom_setting_opt=${custom_setting_opt:-'y'}
   if [[ ! ${custom_setting_opt} =~ ^[y,n]$ ]]; then
     Echo_Red "Input Error! Please only input 'y' or 'n'"
   else :
@@ -192,17 +194,27 @@ done
 
 # choice ssh port update
 while :; do echo
-  read -e -p "Do you want to update ssh port [y/n]? " ssh_port_opt
+  read -e -p "Do you want to update ssh port [y/n]? [default: y]" ssh_port_opt
+  ssh_port_opt=${ssh_port_opt:-'y'}
   if [[ ! ${ssh_port_opt} =~ ^[y,n]$ ]]; then
     Echo_Red "Input Error! Please only input 'y' or 'n'"
   else :
+    if [ "${ssh_port_opt}" == 'y' ]; then
+      read -e -p  "Enter new SSH Port: " new_ssh_port
+      read -e -p  "Enter new Github username, which hold the public key: [default: kbrx93]" github_key_user
+      github_key_user=${github_key_user:-'kbrx93'}
+      break
+    else :
+      break
+    fi
     break
   fi
 done
 
 # choice Pip installation
 while :; do echo
-  read -e -p "Do you want to install Pip [y/n]? " pip_install_opt
+  read -e -p "Do you want to install Pip [y/n]? [default: n]" pip_install_opt
+  pip_install_opt=${pip_install_opt:-'n'}
   if [[ ! ${pip_install_opt} =~ ^[y,n]$ ]]; then
     Echo_Red "Input Error! Please only input 'y' or 'n'"
   else :
@@ -212,7 +224,8 @@ done
 
 # choice Pyenv installation
 while :; do echo
-  read -e -p "Do you want to install Pyenv [y/n]? " pyenv_install_opt
+  read -e -p "Do you want to install Pyenv [y/n]? [default: n]" pyenv_install_opt
+  pyenv_install_opt=${pyenv_install_opt:-'n'}
   if [[ ! ${pyenv_install_opt} =~ ^[y,n]$ ]]; then
     Echo_Red "Input Error! Please only input 'y' or 'n'"
   else :
@@ -222,7 +235,8 @@ done
 
 # choice ServerStatus installation
 while :; do echo
-  read -e -p "Do you want to install serverstatus [y/n]? " serverstatus_install_opt
+  read -e -p "Do you want to install serverstatus [y/n]? [default: n]" serverstatus_install_opt
+  serverstatus_install_opt=${serverstatus_install_opt:-'n'}
   if [[ ! ${serverstatus_install_opt} =~ ^[y,n]$ ]]; then
     Echo_Red "Input Error! Please only input 'y' or 'n'"
   else :
@@ -232,7 +246,8 @@ done
 
 # choice Oh_My_Zsh installation
 while :; do echo
-  read -e -p "Do you want to install oh my zsh [y/n]? " ohmyzsh_install_opt
+  read -e -p "Do you want to install oh my zsh [y/n]? [default: y]" ohmyzsh_install_opt
+  ohmyzsh_install_opt=${ohmyzsh_install_opt:-'y'}
   if [[ ! ${ohmyzsh_install_opt} =~ ^[y,n]$ ]]; then
     Echo_Red "Input Error! Please only input 'y' or 'n'"
   else :
@@ -296,7 +311,8 @@ custom_setting()
 update_ssh_port()
 {
   if [ $1 == 'y' ]; then
-    bash <(wget -N --no-check-certificate -qO- https://raw.githubusercontent.com/ToyoDAdoubi/doubi/master/ssh_port.sh)
+    # bash <(wget -N --no-check-certificate -qO- https://raw.githubusercontent.com/ToyoDAdoubi/doubi/master/ssh_port.sh)
+    apt update -y && apt install -y curl && bash <(curl -fsSL git.io/key.sh) -og $2 -p $3 -d
   fi
 }
 
@@ -381,7 +397,7 @@ change_password ${chg_pwd_opt} ${NEW_ROOT_PASSWORD}
 package_update ${package_update_opt}
 install_bbr ${bbr_install_opt}
 custom_setting ${custom_setting_opt}
-update_ssh_port ${ssh_port_opt}
+update_ssh_port ${ssh_port_opt} ${github_key_user} ${new_ssh_port}
 install_pip ${pip_install_opt}
 install_pyenv ${pyenv_install_opt}
 install_serverstatus ${serverstatus_install_opt}
