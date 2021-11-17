@@ -10,7 +10,7 @@ clear
 printf "
 #######################################################################
 #                      Init Shell for Debian 9+                       #
-#          For information please visit https://town.kbrx93.com       #
+#          For information please visit https://blog.kbrx93.com       #
 #######################################################################
 "
 
