@@ -303,6 +303,8 @@ custom_setting()
   if [ $1 == 'y' ]; then
     echo > /etc/motd
     timedatectl set-timezone Asia/Shanghai
+    sed -ri 's/.*swap.*/#&/' /etc/fstab
+    sudo swapoff -a
     ${PM} install sudo wget curl net-tools git zsh -y
   fi
 }
