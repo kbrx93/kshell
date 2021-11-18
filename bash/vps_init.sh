@@ -405,11 +405,11 @@ Press_Start
 change_password ${chg_pwd_opt} ${NEW_ROOT_PASSWORD}
 package_update ${package_update_opt}
 install_bbr ${bbr_install_opt}
+install_ohmyzsh ${ohmyzsh_install_opt}
 custom_setting ${custom_setting_opt}
 update_ssh_port ${ssh_port_opt} ${github_key_user} ${new_ssh_port}
 install_pip ${pip_install_opt}
 install_pyenv ${pyenv_install_opt}
 install_serverstatus ${serverstatus_install_opt}
-install_ohmyzsh ${ohmyzsh_install_opt}
 reboot
 
