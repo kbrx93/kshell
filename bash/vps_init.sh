@@ -412,5 +412,4 @@ install_pip ${pip_install_opt}
 install_pyenv ${pyenv_install_opt}
 install_serverstatus ${serverstatus_install_opt}
 install_ohmyzsh ${ohmyzsh_install_opt}
-reboot
 
