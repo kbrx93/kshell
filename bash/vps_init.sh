@@ -302,9 +302,15 @@ custom_setting()
 {
   if [ $1 == 'y' ]; then
     echo > /etc/motd
+    # set timezone
     timedatectl set-timezone Asia/Shanghai
+    
+    # turn off swap
     sed -ri 's/.*swap.*/#&/' /etc/fstab
     sudo swapoff -a
+    
+    # change default shell to zsh
+    chsh -s $(which zsh)
     ${PM} install sudo wget curl net-tools git zsh -y
   fi
 }
@@ -390,7 +396,7 @@ systemctl enable clientServer.service
 install_ohmyzsh()
 {
   if [ $1 == 'y' ]; then
-    echo "Y" | sh -c "$(curl -fsSL https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/install.sh)"
+    sh -c "$(curl -fsSL https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/install.sh)"
   fi
 }
 
