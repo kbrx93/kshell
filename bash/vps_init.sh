@@ -396,7 +396,7 @@ systemctl enable clientServer.service
 install_ohmyzsh()
 {
   if [ $1 == 'y' ]; then
-    sh -c "$(curl -fsSL https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/install.sh)"
+    echo "Y" | sh -c "$(curl -fsSL https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/install.sh)"
   fi
 }
 
