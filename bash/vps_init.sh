@@ -390,7 +390,7 @@ systemctl enable clientServer.service
 install_ohmyzsh()
 {
   if [ $1 == 'y' ]; then
-    sh -c "$(curl -fsSL https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/install.sh)"
+    echo "Y" | sh -c "$(curl -fsSL https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/install.sh)"
   fi
 }
 
@@ -405,4 +405,5 @@ install_pip ${pip_install_opt}
 install_pyenv ${pyenv_install_opt}
 install_serverstatus ${serverstatus_install_opt}
 install_ohmyzsh ${ohmyzsh_install_opt}
+reboot
 
