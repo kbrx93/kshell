@@ -302,6 +302,7 @@ custom_setting()
 {
   if [ $1 == 'y' ]; then
     echo > /etc/motd
+    timedatectl set-timezone Asia/Shanghai
     ${PM} install sudo wget curl net-tools git zsh -y
   fi
 }
