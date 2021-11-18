@@ -309,9 +309,10 @@ custom_setting()
     sed -ri 's/.*swap.*/#&/' /etc/fstab
     sudo swapoff -a
     
+    ${PM} install sudo wget curl net-tools git zsh -y
+    
     # change default shell to zsh
     chsh -s $(which zsh)
-    ${PM} install sudo wget curl net-tools git zsh -y
   fi
 }
 
@@ -396,7 +397,7 @@ systemctl enable clientServer.service
 install_ohmyzsh()
 {
   if [ $1 == 'y' ]; then
-    echo "Y" | sh -c "$(curl -fsSL https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/install.sh)"
+    sh -c "$(curl -fsSL https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/install.sh) --skip-chsh"
   fi
 }
 
@@ -405,11 +406,11 @@ Press_Start
 change_password ${chg_pwd_opt} ${NEW_ROOT_PASSWORD}
 package_update ${package_update_opt}
 install_bbr ${bbr_install_opt}
-install_ohmyzsh ${ohmyzsh_install_opt}
 custom_setting ${custom_setting_opt}
 update_ssh_port ${ssh_port_opt} ${github_key_user} ${new_ssh_port}
 install_pip ${pip_install_opt}
 install_pyenv ${pyenv_install_opt}
 install_serverstatus ${serverstatus_install_opt}
+install_ohmyzsh ${ohmyzsh_install_opt}
 reboot
 
