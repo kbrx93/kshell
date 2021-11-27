@@ -366,7 +366,9 @@ EOF
 install_serverstatus()
 {
   if [ $1 == 'y' ]; then
-local serverNo="s01"
+  # need
+  apt install -y python3 python3-pip
+  local serverNo="s01"
   read -p "input server no : " serverNo
   mkdir /root/.serverstatus && cd $_ && wget --no-check-certificate -qO client-linux.py 'https://raw.githubusercontent.com/cppla/ServerStatus/master/clients/client-linux.py' 
 
@@ -389,8 +391,8 @@ WantedBy=multi-user.target
 
 EOF
 
-systemctl restart clientServer.service
-systemctl enable clientServer.service
+systemctl enable clientServer.service --now
+cd $HOME
   fi
 }
 
