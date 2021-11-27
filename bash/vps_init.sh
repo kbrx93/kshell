@@ -235,8 +235,8 @@ done
 
 # choice ServerStatus installation
 while :; do echo
-  read -e -p "Do you want to install serverstatus [y/n]? [default: n]" serverstatus_install_opt
-  serverstatus_install_opt=${serverstatus_install_opt:-'n'}
+  read -e -p "Do you want to install serverstatus [y/n]? [default: y]" serverstatus_install_opt
+  serverstatus_install_opt=${serverstatus_install_opt:-'y'}
   if [[ ! ${serverstatus_install_opt} =~ ^[y,n]$ ]]; then
     Echo_Red "Input Error! Please only input 'y' or 'n'"
   else :
