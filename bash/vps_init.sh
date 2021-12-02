@@ -133,7 +133,8 @@ fi
 
 # choice change password
 while :; do echo
-  read -e -p "Do you want to change password? [y/n]: " chg_pwd_opt
+  read -e -p "Do you want to change password? [y/n][default: n]: " chg_pwd_opt
+  chg_pwd_opt=${chg_pwd_opt:-'n'}
   if [[ ! ${chg_pwd_opt} =~ ^[y,n]$ ]]; then
     Echo_Red "Input Error! Please only input 'y' or 'n'"
   else
@@ -194,8 +195,8 @@ done
 
 # choice ssh port update
 while :; do echo
-  read -e -p "Do you want to update ssh port [y/n]? [default: y]" ssh_port_opt
-  ssh_port_opt=${ssh_port_opt:-'y'}
+  read -e -p "Do you want to update ssh port [y/n]? [default: n]" ssh_port_opt
+  ssh_port_opt=${ssh_port_opt:-'n'}
   if [[ ! ${ssh_port_opt} =~ ^[y,n]$ ]]; then
     Echo_Red "Input Error! Please only input 'y' or 'n'"
   else :
