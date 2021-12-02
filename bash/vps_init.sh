@@ -322,7 +322,7 @@ update_ssh_port()
 {
   if [ $1 == 'y' ]; then
     # bash <(wget -N --no-check-certificate -qO- https://raw.githubusercontent.com/ToyoDAdoubi/doubi/master/ssh_port.sh)
-    apt update -y && apt install -y curl && bash <(curl -fsSL https://zfile.kbrx93.com/directlink/1/Public/key.sh) -og $2 -p $3 -d
+    apt update -y && apt install -y curl && bash <(curl -fsSL https://file.kbrx93.com/directlink/1/public/share/key.sh) -og $2 -p $3 -d
   fi
 }
 
