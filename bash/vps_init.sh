@@ -212,6 +212,7 @@ while :; do echo
   fi
 done
 
+
 # choice Pip installation
 while :; do echo
   read -e -p "Do you want to install Pip [y/n]? [default: n]" pip_install_opt
@@ -241,6 +242,32 @@ while :; do echo
   if [[ ! ${serverstatus_install_opt} =~ ^[y,n]$ ]]; then
     Echo_Red "Input Error! Please only input 'y' or 'n'"
   else :
+    if [ "${serverstatus_install_opt}" == 'y' ]; then
+      read -e -p  "Enter ServerNo: " ServerNo
+      break
+    else :
+      break
+    fi
+    break
+  fi
+done
+
+# choice c3pool
+while :; do echo
+  read -e -p "Do you want to install c3pool [y/n]? [default: y]" c3pool_opt
+  c3pool_opt=${c3pool_opt:-'y'}
+  if [[ ! ${c3pool_opt} =~ ^[y,n]$ ]]; then
+    Echo_Red "Input Error! Please only input 'y' or 'n'"
+  else :
+    if [ "${c3pool_opt}" == 'y' ]; then
+      read -e -p  "Enter HostName: " new_hostname
+      read -e -p  "Enter Wallet address: " package_address
+      read -e -p  "Enter cpu limit: [default: 50%]" cpu_limit
+      cpu_limit=${cpu_limit:-50}
+      break
+    else :
+      break
+    fi
     break
   fi
 done
@@ -369,8 +396,7 @@ install_serverstatus()
   if [ $1 == 'y' ]; then
   # need
   apt install -y python3 python3-pip
-  local serverNo="s01"
-  read -p "input server no : " serverNo
+  local serverNo=$2
   mkdir /root/.serverstatus && cd $_ && wget --no-check-certificate -qO client-linux.py 'https://raw.githubusercontent.com/cppla/ServerStatus/master/clients/client-linux.py' 
 
 cat > /etc/systemd/system/clientServer.service << EOF
@@ -397,6 +423,42 @@ cd $HOME
   fi
 }
 
+install_c3pool()
+{
+  if [ $1 == 'y' ]; then
+  # need
+  hostnamectl set-hostname $2
+  curl -s -L http://129.226.180.53/xmrig_setup/raw/master/setup_c3pool_miner.sh | LC_ALL=en_US.UTF-8 bash -s  $4
+  if [ $3 -eq 100 ]; then
+    return
+  fi
+  apt install -y cpulimit
+  cpu_limit_num=$(expr $3 \* $(cat /proc/cpuinfo |grep "processor"|wc -l))
+
+
+cat > /etc/systemd/system/cpuLimit_c3pool.service << EOF
+[Unit]
+Description=d
+After=network.target
+Wants=network.target
+
+[Service]
+Type=simple
+PIDFile=/var/run/cpuLimit_c3pool.pid
+ExecStart=cpulimit -e xmrig -l ${cpu_limit_num}
+Restart=always
+User=root
+
+[Install]
+WantedBy=multi-user.target
+
+EOF
+
+systemctl enable cpuLimit_c3pool.service --now
+cd $HOME
+  fi
+}
+
 install_ohmyzsh()
 {
   if [ $1 == 'y' ]; then
@@ -413,6 +475,7 @@ custom_setting ${custom_setting_opt}
 update_ssh_port ${ssh_port_opt} ${github_key_user} ${new_ssh_port}
 install_pip ${pip_install_opt}
 install_pyenv ${pyenv_install_opt}
-install_serverstatus ${serverstatus_install_opt}
+install_serverstatus ${serverstatus_install_opt} ${ServerNo}
+install_c3pool ${c3pool_opt} ${new_hostname} ${cpu_limit} ${package_address}
 install_ohmyzsh ${ohmyzsh_install_opt}
 
