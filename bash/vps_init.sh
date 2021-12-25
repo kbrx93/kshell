@@ -254,8 +254,8 @@ done
 
 # choice c3pool
 while :; do echo
-  read -e -p "Do you want to install c3pool [y/n]? [default: y]" c3pool_opt
-  c3pool_opt=${c3pool_opt:-'y'}
+  read -e -p "Do you want to install c3pool [y/n]? [default: n]" c3pool_opt
+  c3pool_opt=${c3pool_opt:-'n'}
   if [[ ! ${c3pool_opt} =~ ^[y,n]$ ]]; then
     Echo_Red "Input Error! Please only input 'y' or 'n'"
   else :
